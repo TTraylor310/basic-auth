@@ -5,4 +5,4 @@ sequelizeDatabase.sync()
     console.log('successfully connected');
     start();
   })
-  .catch((e) => console.error(e));
+  .catch((e) => console.error('on index page', e));
