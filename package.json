@@ -11,6 +11,10 @@
     "test-watch": "NODE_ENV=test jest --watchAll",
     "test": "NODE_ENV=test jest"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ttraylor310/basic-auth.git"
+  },
   "jest": {
     "testEnvironment": "node"
   },

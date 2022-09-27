@@ -1,9 +1,11 @@
 'use strict';
 
+require('dotenv').config();
 const express = require('express');
 const bcrypt = require('bcrypt');
 const base64 = require('base-64');
 const { Sequelize, DataTypes } = require('sequelize');
+const PORT = process.env.PORT || 3002;
 
 const DATABASE_URL = process.env.NODE_ENV === 'test'
   ? 'sqlite::memory'
@@ -13,13 +15,19 @@ const app = express();
 app.use(express.json());
 
 
-// Process FORM intput and put the data on req.body
+// Process FORM input and put the data on req.body
 app.use(express.urlencoded({ extended: true }));
 
+let options = process.env.NODE_ENV === 'production' ? {
+  dialectOptions: {
+    ssl: true,
+    rejectUnauthorized:false,
+  },
+} : {};
 
+const sequelizeDatabase = new Sequelize(DATABASE_URL, options);
 
-const sequelize = new Sequelize(DATABASE_URL);
-const Users = sequelize.define('User', {
+const Users = sequelizeDatabase.define('User', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -30,7 +38,11 @@ const Users = sequelize.define('User', {
   },
 });
 
+Users.beforeCreate( user => console.log('our user', user));
 
+app.get('/', (req, res, next) => {
+  res.send(200).send('Tray in week2');
+});
 
 // Sign up Route -- create a new user
 // Two ways to test this route with httpie
@@ -39,7 +51,9 @@ const Users = sequelize.define('User', {
 app.post('/signup', async (req, res) => {
 
   try {
+    console.log('Check1');
     req.body.password = await bcrypt.hash(req.body.password, 10);
+    console.log(req.body.password);
     const record = await Users.create(req.body);
     res.status(200).json(record);
   } catch (e) { res.status(403).send('Error Creating User'); }
@@ -86,10 +100,13 @@ app.post('/signin', async (req, res) => {
 
 });
 
-// make sure our tables are created, start up the HTTP server.
-sequelize.sync()
-  .then(() => {
-    app.listen(3001, () => console.log('server up'));
-  }).catch(e => {
-    console.error('Could not start server', e.message);
-  });
+
+
+
+
+
+function start() {
+  app.listen(PORT, () => console.log('listening on port ', PORT));
+}
+
+module.exports = {app, start, sequelizeDatabase};
