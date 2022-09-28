@@ -11,7 +11,7 @@ const forbid = require('./middleware/403');
 const errorHandler = require('./middleware/500');
 
 // const Users = require('./auth/models/users-model');
-// const authRouter = require('./auth/router');
+const authRouter = require('./auth/router');
 // const userSchema = require('./auth/models/users-model');
 
 
@@ -63,25 +63,25 @@ app.post('/signup', async (req, res) => {
   } catch (e) { res.status(403).send('Error Creating User'); }
 });
 
-app.post('/signin', async (req, res) => {
-  console.log('here yet?');
-  let basicHeaderParts = req.headers.authorization.split(' ');
-  let encodedString = basicHeaderParts.pop();
-  let decodedString = base64.decode(encodedString);
-  let [username, password] = decodedString.split(':');
-  try {
-    const user = await Users.findOne({ where: { username: username } });
-    const valid = await bcrypt.compare(password, user.password);
-    if (valid) {
-      res.status(200).json(user);
-    }
-    else {
-      throw new Error('Invalid User');
-    }
-  } catch (error) { res.status(403).send('Invalid Login'); }
-});
+// app.post('/signin', async (req, res) => {
+//   console.log('here yet?');
+//   let basicHeaderParts = req.headers.authorization.split(' ');
+//   let encodedString = basicHeaderParts.pop();
+//   let decodedString = base64.decode(encodedString);
+//   let [username, password] = decodedString.split(':');
+//   try {
+//     const user = await Users.findOne({ where: { username: username } });
+//     const valid = await bcrypt.compare(password, user.password);
+//     if (valid) {
+//       res.status(200).json(user);
+//     }
+//     else {
+//       throw new Error('Invalid User');
+//     }
+//   } catch (error) { res.status(403).send('Invalid Login'); }
+// });
 
-// app.use(authRouter);
+app.use(authRouter);
 app.use('*', forbid);
 app.use(errorHandler);
 
